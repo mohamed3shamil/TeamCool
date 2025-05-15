@@ -30,7 +30,7 @@
     }
 
     button {
-      background-color: #4CAF50;
+      background-color: #000000;
       color: white;
       padding: 12px 20px;
       border: none;
@@ -76,7 +76,7 @@
           <tr>
             <th>Column 1</th>
             <th>Column 2</th>
-            <th>Result</th>
+            <th>Sum</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -101,31 +101,40 @@
 
       const reader = new FileReader();
       reader.onload = function (event) {
-        const lines = event.target.result.split("\n").filter(line => line.trim() !== "");
+        const lines = event.target.result.split("\n").filter(Boolean);
         resultTableBody.innerHTML = ''; // clear previous results
 
-        lines.forEach((line, index) => {
+        lines.forEach((line) => {
           const cols = line.split(",");
-          let col1 = cols[0]?.trim() || "0";
-          let col2 = cols[1]?.trim() || "0";
 
-          // If both are numeric, add them
+          let col1 = cols[0] ? cols[0].trim() : "";
+          let col2 = cols[1] ? cols[1].trim() : "";
+
+          // Skip row if both columns are empty or whitespace
+          if (col1 === "" && col2 === "") return;
+
+          // If either is empty, treat it as 0
+          col1 = col1 === "" ? "0" : col1;
+          col2 = col2 === "" ? "0" : col2;
+
+          const num1 = parseFloat(col1);
+          const num2 = parseFloat(col2);
+
           let result;
-          if (!isNaN(col1) && !isNaN(col2)) {
-            result = parseFloat(col1) + parseFloat(col2);
+          if (!isNaN(num1) && !isNaN(num2)) {
+            result = num1 + num2;
           } else {
-            // Concatenate for alphanumeric or symbols
             result = col1 + col2;
           }
 
-          const row = `
+          const rowHTML = `
             <tr>
               <td>${col1}</td>
               <td>${col2}</td>
               <td>${result}</td>
             </tr>
           `;
-          resultTableBody.insertAdjacentHTML("beforeend", row);
+          resultTableBody.insertAdjacentHTML("beforeend", rowHTML);
         });
 
         resultDiv.style.display = 'block';
