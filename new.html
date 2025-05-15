@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CSV Column Sum</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      background: white;
+      padding: 30px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 20px 0;
+    }
+
+    button {
+      background-color: #000000;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #eef;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload CSV and Sum First Two Columns</h2>
+    <form id="uploadForm">
+      <input type="file" id="fileInput" accept=".csv"/>
+      <button type="submit">Process File</button>
+    </form>
+
+    <div id="result" class="result" style="display:none;">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th>Sum</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const resultDiv = document.getElementById("result");
+    const resultTableBody = document.querySelector("#resultTable tbody");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please upload a CSV file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const lines = event.target.result.split("\n").filter(Boolean);
+        resultTableBody.innerHTML = ''; // clear previous results
+
+        lines.forEach((line) => {
+          const cols = line.split(",");
+
+          let col1 = cols[0] ? cols[0].trim() : "";
+          let col2 = cols[1] ? cols[1].trim() : "";
+
+          // Skip row if both columns are empty or whitespace
+          if (col1 === "" && col2 === "") return;
+
+          // If either is empty, treat it as 0
+          col1 = col1 === "" ? "0" : col1;
+          col2 = col2 === "" ? "0" : col2;
+
+          const num1 = parseFloat(col1);
+          const num2 = parseFloat(col2);
+
+          let result;
+          if (!isNaN(num1) && !isNaN(num2)) {
+            result = num1 + num2;
+          } else {
+            result = col1 + col2;
+          }
+
+          const rowHTML = `
+            <tr>
+              <td>${col1}</td>
+              <td>${col2}</td>
+              <td>${result}</td>
+            </tr>
+          `;
+          resultTableBody.insertAdjacentHTML("beforeend", rowHTML);
+        });
+
+        resultDiv.style.display = 'block';
+      };
+
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
